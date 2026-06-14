@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Câmera Tática — Partida</title>
+<style>
+  :root{
+    --bg:#0a0e12; --panel:#0e151b; --line:#1c2932;
+    --txt:#eaf2ef; --muted:#7f948d;
+    --pitch-a:#123f38; --pitch-b:#0f352f; --pitchline:rgba(222,238,232,.55);
+    --casa:#e8743b; --fora:#43a6d9; --ball:#f6f8f4;
+    --good:#6fcf97; --warn:#f2c94c; --bad:#eb5757;
+    --disp:"Oswald","Arial Narrow","Helvetica Neue",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:var(--mono);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px 16px 40px}
+  .eyebrow{font-family:var(--disp);letter-spacing:.32em;text-transform:uppercase;
+    font-size:11px;color:var(--muted);font-weight:600}
+  h1{font-family:var(--disp);text-transform:uppercase;letter-spacing:.06em;
+    font-weight:700;font-size:clamp(20px,3vw,30px);margin:2px 0 14px}
+  h1 .sep{color:var(--muted);font-weight:300}
+
+  /* scorebug */
+  .bug{display:flex;align-items:stretch;gap:0;border:1px solid var(--line);
+    border-radius:10px;overflow:hidden;background:var(--panel);
+    box-shadow:0 10px 30px rgba(0,0,0,.4);margin-bottom:12px}
+  .bug .team{flex:1;display:flex;align-items:center;gap:10px;padding:12px 16px;min-width:0}
+  .bug .team.right{justify-content:flex-end;text-align:right}
+  .bug .chip{width:12px;height:24px;border-radius:3px;flex:none}
+  .bug .tname{font-family:var(--disp);text-transform:uppercase;letter-spacing:.05em;
+    font-weight:600;font-size:clamp(13px,2vw,17px);white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .bug .score{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:8px 18px;background:#070b0e;border-left:1px solid var(--line);
+    border-right:1px solid var(--line)}
+  .bug .gg{font-family:var(--disp);font-weight:700;font-size:30px;line-height:1;
+    letter-spacing:.04em}
+  .bug .clock{font-family:var(--mono);font-size:12px;color:var(--good);margin-top:3px;
+    letter-spacing:.05em}
+
+  .stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);
+    background:#08110e;box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  canvas{display:block;width:100%;height:auto}
+  .stamp{position:absolute;top:10px;left:12px;font-family:var(--disp);
+    text-transform:uppercase;letter-spacing:.28em;font-size:10px;color:rgba(234,242,239,.55);
+    pointer-events:none}
+  .fim{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    flex-direction:column;background:rgba(6,10,13,.72);backdrop-filter:blur(3px)}
+  .fim.show{display:flex}
+  .fim .big{font-family:var(--disp);text-transform:uppercase;letter-spacing:.2em;
+    font-size:28px;font-weight:700}
+  .fim .fs{font-family:var(--disp);font-size:46px;font-weight:700;margin-top:6px}
+
+  .row{display:flex;gap:12px;margin-top:12px;align-items:flex-start}
+  @media(max-width:740px){.row{flex-direction:column}}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{font-family:var(--disp);text-transform:uppercase;letter-spacing:.08em;
+    font-weight:600;font-size:12px;color:var(--txt);background:var(--panel);
+    border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer;
+    transition:border-color .15s,background .15s}
+  button:hover{border-color:#33474f}
+  button.active{border-color:var(--casa);color:#fff}
+  button:focus-visible{outline:2px solid var(--fora);outline-offset:2px}
+  .spd{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .spd button{border:none;border-radius:0;border-left:1px solid var(--line)}
+  .spd button:first-child{border-left:none}
+
+  .ticker{flex:1;width:100%;border:1px solid var(--line);border-radius:10px;
+    background:var(--panel);max-height:300px;overflow-y:auto}
+  .ticker h2{font-family:var(--disp);text-transform:uppercase;letter-spacing:.22em;
+    font-size:10px;color:var(--muted);margin:0;padding:12px 14px 8px;
+    position:sticky;top:0;background:var(--panel)}
+  .feed{list-style:none;margin:0;padding:0 8px 10px}
+  .feed li{display:flex;gap:10px;align-items:baseline;padding:6px 6px;border-radius:6px;
+    font-size:13px;opacity:.55;transition:opacity .3s,background .3s}
+  .feed li.live{opacity:1;background:#11202a}
+  .feed .min{font-family:var(--mono);color:var(--muted);font-size:12px;min-width:34px}
+  .feed .ic{min-width:16px;text-align:center}
+  .feed .tx{flex:1}
+  .feed .who{color:var(--muted)}
+  .panel-side{width:300px}
+  @media(max-width:740px){.panel-side{width:100%}}
+  .hint{color:var(--muted);font-size:11px;margin-top:10px;line-height:1.5}
+  .hint b{color:var(--txt);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Câmera Tática · roteiro gerado pelo núcleo</div>
+  <h1 id="title"></h1>
+
+  <div class="bug">
+    <div class="team"><span class="chip" id="chipCasa"></span><span class="tname" id="nameCasa"></span></div>
+    <div class="score"><span class="gg" id="placar">0–0</span><span class="clock" id="clock">0'</span></div>
+    <div class="team right"><span class="tname" id="nameFora"></span><span class="chip" id="chipFora"></span></div>
+  </div>
+
+  <div class="stage">
+    <canvas id="cv"></canvas>
+    <div class="stamp">AO VIVO</div>
+    <div class="fim" id="fim"><div class="big">Fim de jogo</div><div class="fs" id="fimScore"></div></div>
+  </div>
+
+  <div class="row">
+    <div class="controls panel-side">
+      <button id="btnPlay">Pausar</button>
+      <button id="btnRestart">Reiniciar</button>
+      <span class="spd" role="group" aria-label="velocidade">
+        <button data-spd="1" class="active">1×</button>
+        <button data-spd="2">2×</button>
+        <button data-spd="4">4×</button>
+      </span>
+      <div class="hint">O núcleo decidiu <b>o que</b> aconteceu (o roteiro de eventos).
+        A tela só decide <b>como</b> encenar. Espaço pausa.</div>
+    </div>
+    <div class="ticker"><h2>Narração</h2><ul class="feed" id="feed"></ul></div>
+  </div>
+</div>
+
+<script>
+const MATCH = {"casa": "Tupã Central", "fora": "Esperança FC", "golsCasa": 4, "golsFora": 1, "acrescimos": 1, "xiCasa": [{"nome": "Pedrão Cardim", "pos": "GOL", "ov": 62}, {"nome": "Rômulo Macedo", "pos": "ZAG", "ov": 72}, {"nome": "Murilo Bensaúde", "pos": "ZAG", "ov": 62}, {"nome": "Wesley Andrade", "pos": "LAT", "ov": 66}, {"nome": "Sandro Falcão", "pos": "LAT", "ov": 62}, {"nome": "Igor Pestana", "pos": "VOL", "ov": 60}, {"nome": "Tales Saldanha", "pos": "MEI", "ov": 64}, {"nome": "Gabe Cardim", "pos": "MEI", "ov": 56}, {"nome": "Dante Lustosa", "pos": "ATA", "ov": 75}, {"nome": "Tales Cordeiro", "pos": "ATA", "ov": 70}, {"nome": "Nando Andrade", "pos": "ATA", "ov": 64}], "xiFora": [{"nome": "Bruno Andrade", "pos": "GOL", "ov": 62}, {"nome": "Wesley Bastos", "pos": "ZAG", "ov": 68}, {"nome": "Vitão Nóbrega", "pos": "ZAG", "ov": 67}, {"nome": "Caio Bastos", "pos": "LAT", "ov": 63}, {"nome": "Gabe Tinoco", "pos": "LAT", "ov": 58}, {"nome": "Léo Goulart", "pos": "VOL", "ov": 67}, {"nome": "Caio Goulart", "pos": "MEI", "ov": 68}, {"nome": "Caio Bastos", "pos": "MEI", "ov": 56}, {"nome": "Wesley Saldanha", "pos": "ATA", "ov": 72}, {"nome": "Sandro Drumond", "pos": "ATA", "ov": 70}, {"nome": "Diego Lustosa", "pos": "ATA", "ov": 64}], "eventos": [[7, "DEFESA_GOL", "Tupã Central", "Pedrão Cardim"], [13, "AMARELO", "Esperança FC", "Wesley Bastos"], [13, "PENALTI", "Tupã Central", "Dante Lustosa"], [13, "GOL_PENALTI", "Tupã Central", "Dante Lustosa"], [14, "DESARME", "Esperança FC", "Wesley Bastos"], [16, "GOL", "Tupã Central", "Dante Lustosa"], [17, "CHUTE_LONGE", "Tupã Central", "Nando Andrade"], [17, "GOLACO", "Tupã Central", "Nando Andrade"], [24, "CHUTE_LONGE", "Esperança FC", "Wesley Saldanha"], [24, "DEFESA_GOL", "Tupã Central", "Pedrão Cardim"], [25, "DESARME", "Esperança FC", "Wesley Bastos"], [25, "CHUTE_LONGE", "Esperança FC", "Caio Goulart"], [25, "GOLACO", "Esperança FC", "Caio Goulart"], [27, "DESARME", "Tupã Central", "Rômulo Macedo"], [29, "FALTA", "Tupã Central", "Rômulo Macedo"], [29, "PENALTI", "Esperança FC", "Wesley Saldanha"], [29, "PENALTI_PERDIDO", "Esperança FC", "Wesley Saldanha"], [32, "GOL", "Tupã Central", "Dante Lustosa"], [33, "CHANCE_PERDIDA", "Tupã Central", "Dante Lustosa"], [44, "CHUTE_LONGE", "Tupã Central", "Nando Andrade"], [44, "DEFESA_GOL", "Esperança FC", "Bruno Andrade"], [48, "DEFESA_GOL", "Esperança FC", "Bruno Andrade"], [48, "CHANCE_PERDIDA", "Esperança FC", "Sandro Drumond"], [51, "CHANCE_PERDIDA", "Tupã Central", "Dante Lustosa"], [52, "AMARELO", "Tupã Central", "Rômulo Macedo"], [56, "DESARME", "Esperança FC", "Wesley Bastos"], [59, "CHANCE_PERDIDA", "Tupã Central", "Dante Lustosa"], [60, "CHANCE_PERDIDA", "Tupã Central", "Dante Lustosa"], [61, "CHANCE_PERDIDA", "Tupã Central", "Dante Lustosa"], [62, "DEFESA_GOL", "Tupã Central", "Pedrão Cardim"], [64, "CHUTE_LONGE", "Esperança FC", "Wesley Saldanha"], [64, "DEFESA_GOL", "Tupã Central", "Pedrão Cardim"], [65, "CHANCE_PERDIDA", "Tupã Central", "Dante Lustosa"], [68, "DESARME", "Tupã Central", "Rômulo Macedo"], [70, "DEFESA_GOL", "Esperança FC", "Bruno Andrade"], [74, "DESARME", "Esperança FC", "Wesley Bastos"], [74, "SUBSTITUICAO", "Tupã Central", "↓ Nando Andrade  ↑ Joca Bensaúde"], [84, "CHANCE_PERDIDA", "Esperança FC", "Wesley Saldanha"], [85, "DEFESA_GOL", "Tupã Central", "Pedrão Cardim"], [86, "ATAQUE_PERIGOSO", "Tupã Central", "—"], [87, "CHANCE_PERDIDA", "Esperança FC", "Sandro Drumond"], [91, "IMPEDIMENTO", "Esperança FC", "—"]]};
+
+// ---------- mapa de eventos (texto + ícone + natureza) ----------
+const EV = {
+  GOL:{t:"Gol!",ic:"⚽",s:"goal"}, GOLACO:{t:"Golaço de fora!",ic:"⚽",s:"goal"},
+  GOL_PENALTI:{t:"Gol de pênalti!",ic:"⚽",s:"goal"},
+  PENALTI:{t:"Pênalti marcado!",ic:"◎",s:"set"},
+  PENALTI_PERDIDO:{t:"Perdeu o pênalti!",ic:"✗",s:"miss"},
+  PENALTI_DEFENDIDO:{t:"Pênalti defendido!",ic:"🧤",s:"save"},
+  CHUTE_LONGE:{t:"Arrisca de longe",ic:"»",s:"shot"},
+  ATAQUE_PERIGOSO:{t:"Ataque perigoso",ic:"⚡",s:"shot"},
+  DEFESA_GOL:{t:"Defesa do goleiro",ic:"🧤",s:"save"},
+  CHANCE_PERDIDA:{t:"Finalizou pra fora",ic:"↗",s:"miss"},
+  VERMELHO:{t:"Cartão vermelho",ic:"▮",s:"red"},
+  "2ºAMARELO→VERMELHO":{t:"2º amarelo — expulso",ic:"▮",s:"red"},
+  AMARELO:{t:"Cartão amarelo",ic:"▮",s:"yellow"},
+  FALTA:{t:"Falta",ic:"•",s:"foul"}, DESARME:{t:"Desarme",ic:"✓",s:"def"},
+  IMPEDIMENTO:{t:"Impedimento",ic:"⚑",s:"foul"}, LESÃO:{t:"Lesão",ic:"✚",s:"miss"},
+  SUBSTITUICAO:{t:"Substituição",ic:"⇄",s:"sub"},
+};
+const ATACA = new Set(["GOL","GOLACO","GOL_PENALTI","PENALTI","PENALTI_PERDIDO",
+  "CHUTE_LONGE","ATAQUE_PERIGOSO","CHANCE_PERDIDA","IMPEDIMENTO"]);
+const DEFENDE = new Set(["DEFESA_GOL","PENALTI_DEFENDIDO"]);
+const FALTAS = new Set(["AMARELO","VERMELHO","2ºAMARELO→VERMELHO","FALTA","DESARME"]);
+
+// ---------- geometria do campo (unidades de campo 105x68) ----------
+const FW=105, FH=68;
+const LINHA = {GK:5, DEF:24, MID:45, FWD:70};   // x para o time da casa (ataca p/ direita)
+function posToLine(p){ if(p==="GOL")return"GK"; if(p==="ZAG"||p==="LAT")return"DEF";
+  if(p==="VOL"||p==="MEI")return"MID"; return"FWD"; }
+
+function montaTime(xi, ehCasa){
+  const linhas={GK:[],DEF:[],MID:[],FWD:[]};
+  xi.forEach(j=>linhas[posToLine(j.pos)].push(j));
+  const js=[]; let num=1;
+  for(const L of ["GK","DEF","MID","FWD"]){
+    const arr=linhas[L], n=arr.length;
+    arr.forEach((j,i)=>{
+      const x = ehCasa ? LINHA[L] : (FW-LINHA[L]);
+      const y = n===1 ? FH/2 : 9 + (FH-18)*(i/(n-1));
+      js.push({nome:j.nome,pos:j.pos,line:L,ov:j.ov,num:num++,
+        ehCasa, bx:x, by:y, x, y, vx:0, vy:0, ph:Math.random()*6.28,
+        flash:0, flashCol:null, trail:[]});
+    });
+  }
+  return js;
+}
+
+let pcasa, pfora, todos, ball, clock, eventIdx, playing, speed, fireCd, dur;
+function reset(){
+  pcasa=montaTime(MATCH.xiCasa,true); pfora=montaTime(MATCH.xiFora,false);
+  todos=pcasa.concat(pfora);
+  ball={x:FW/2,y:FH/2,tx:FW/2,ty:FH/2,owner:null};
+  clock=0; eventIdx=0; playing=true; fireCd=0;
+  dur = 90 + (MATCH.acrescimos||0);
+  golsC=0; golsF=0; hl=null;
+  document.getElementById("feed").innerHTML="";
+  document.getElementById("fim").classList.remove("show");
+  document.getElementById("btnPlay").textContent="Pausar";
+  setPlacar();
+}
+let golsC=0, golsF=0, hl=null;
+function setPlacar(){ document.getElementById("placar").textContent=golsC+"–"+golsF; }
+
+// ---------- escolha de "ator" plausível (a tela inventa o COMO) ----------
+function squadDe(time){ return time===MATCH.casa ? pcasa : pfora; }
+function rnd(arr){ return arr[(Math.random()*arr.length)|0]; }
+function ator(time, papel){
+  const sq=squadDe(time);
+  if(papel==="gk") return sq.find(p=>p.line==="GK");
+  if(papel==="def"){ const d=sq.filter(p=>p.line==="DEF"||p.line==="MID"); return rnd(d)||rnd(sq); }
+  const f=sq.filter(p=>p.line==="FWD"); return (f.length?rnd(f):rnd(sq.filter(p=>p.line==="MID")))||rnd(sq); }
+
+function golDe(time){ // mira do ataque do time
+  return time===MATCH.casa ? {x:FW-1.5,y:FH/2+(Math.random()*16-8)}
+                           : {x:1.5,y:FH/2+(Math.random()*16-8)}; }
+function golProprio(time){ // gol que o time defende
+  return time===MATCH.casa ? {x:3,y:FH/2} : {x:FW-3,y:FH/2}; }
+
+// ---------- enação de um evento ----------
+function enact(ev){
+  const [min,tipo,time,quem]=ev;
+  feedLine(min,tipo,time,quem);
+  if(EV[tipo]&&EV[tipo].s==="goal"){ if(time===MATCH.casa)golsC++;else golsF++; setPlacar(); }
+
+  if(ATACA.has(tipo)){
+    const a=ator(time,"fwd"); const alvo=golDe(time);
+    const wide = (tipo==="CHANCE_PERDIDA"||tipo==="ATAQUE_PERIGOSO"||tipo==="IMPEDIMENTO"||tipo==="PENALTI_PERDIDO");
+    if(wide){ alvo.y += (Math.random()<.5?-1:1)*(11+Math.random()*7); }
+    hl={ball:alvo, actor:a, actorTo:{x:alvo.x*0.9+a.bx*0.1,y:alvo.y}, t:0,
+         goal:(EV[tipo]&&EV[tipo].s==="goal")};
+  } else if(DEFENDE.has(tipo)){
+    const gk=ator(time,"gk"); const alvo=golProprio(time);
+    hl={ball:{x:alvo.x+(time===MATCH.casa?2:-2),y:alvo.y}, actor:gk, actorTo:alvo, t:0, save:true};
+  } else if(FALTAS.has(tipo)){
+    const d=ator(time,"def");
+    d.flash=1; d.flashCol = (tipo==="AMARELO"?"--warn":(tipo==="FALTA"||tipo==="DESARME"?null:"--bad"));
+    hl={ball:{x:d.bx,y:d.by}, actor:d, actorTo:{x:d.bx,y:d.by}, t:0};
+  } else if(tipo==="LESÃO"){
+    const a=rnd(squadDe(time)); a.flash=1; a.flashCol="--muted";
+  }
+}
+
+function feedLine(min,tipo,time,quem){
+  const e=EV[tipo]||{t:tipo,ic:"·",s:""};
+  const col = time===MATCH.casa ? "var(--casa)" : "var(--fora)";
+  const ul=document.getElementById("feed");
+  document.querySelectorAll(".feed li.live").forEach(li=>li.classList.remove("live"));
+  const li=document.createElement("li"); li.className="live";
+  let nome = (tipo==="SUBSTITUICAO") ? quem : quem;
+  li.innerHTML=`<span class="min">${min}'</span><span class="ic">${e.ic}</span>`+
+    `<span class="tx"><span style="color:${col}">${e.t}</span> `+
+    `<span class="who">— ${nome} (${time})</span></span>`;
+  ul.appendChild(li); ul.scrollTop=ul.scrollHeight;
+}
+
+// ---------- loop ----------
+const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
+let W=900,H=560,scale=1,padX=28,padY=24;
+function resize(){
+  const cssW=Math.min(1000, cv.parentElement.clientWidth);
+  const cssH=Math.round(cssW*0.62);
+  const dpr=window.devicePixelRatio||1;
+  cv.width=cssW*dpr; cv.height=cssH*dpr; cv.style.height=cssH+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  W=cssW; H=cssH; padX=W*0.035; padY=H*0.05;
+}
+function fx(x){ return padX + (x/FW)*(W-2*padX); }
+function fy(y){ return padY + (y/FH)*(H-2*padY); }
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let last=0;
+function frame(ts){
+  const dt=Math.min(0.05,(ts-last)/1000)||0; last=ts;
+  if(playing) step(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+
+function step(dt){
+  // relógio avança; mais devagar durante um lance
+  const ritmo = (hl? 4 : 14) * speed;     // min de jogo por segundo
+  clock += dt*ritmo;
+  fireCd -= dt;
+
+  // dispara próximos eventos (1 por vez, com leve cadência p/ ler)
+  if(fireCd<=0 && eventIdx<MATCH.eventos.length &&
+     MATCH.eventos[eventIdx][0] <= clock){
+    enact(MATCH.eventos[eventIdx]); eventIdx++; fireCd=0.45/speed;
+  }
+
+  // fim
+  if(eventIdx>=MATCH.eventos.length && clock>=dur){
+    playing=false;
+    document.getElementById("fim").classList.add("show");
+    document.getElementById("fimScore").textContent=golsC+"–"+golsF;
+    document.getElementById("btnPlay").textContent="Pausar";
+  }
+
+  // bola: durante lance vai pro alvo; senão flui perto do time do próximo evento
+  let bt;
+  if(hl){ hl.t+=dt; bt=hl.ball; }
+  else {
+    const prox = MATCH.eventos[eventIdx];
+    const lado = prox ? (prox[2]===MATCH.casa?1:-1) : (Math.sin(clock)*0.3);
+    bt={x:FW/2 + lado*18 + Math.sin(clock*0.7)*6, y:FH/2 + Math.cos(clock*0.9)*12};
+  }
+  ball.x += (bt.x-ball.x)*Math.min(1, dt*(hl?9:2.2));
+  ball.y += (bt.y-ball.y)*Math.min(1, dt*(hl?9:2.2));
+  if(hl && hl.t>0.7){ hl=null; }  // encerra o lance
+
+  // jogadores: vão pra base deslocada na direção da bola + perambulam
+  const shift=(ball.x-FW/2)*0.16;
+  for(const p of todos){
+    let tx=p.bx + shift*(p.line==="GK"?0.15:1) + Math.sin(clock*0.6+p.ph)*1.3;
+    let ty=p.by + Math.cos(clock*0.5+p.ph)*1.3;
+    if(hl && p===hl.actor){ tx=hl.actorTo.x; ty=hl.actorTo.y; }
+    p.x += (tx-p.x)*Math.min(1,dt*3.2);
+    p.y += (ty-p.y)*Math.min(1,dt*3.2);
+    if(!reduce){ p.trail.push({x:p.x,y:p.y}); if(p.trail.length>8)p.trail.shift(); }
+    if(p.flash>0) p.flash=Math.max(0,p.flash-dt*0.8);
+  }
+  // relógio na tela
+  const m=Math.min(dur,Math.floor(clock));
+  document.getElementById("clock").textContent =
+    (m>90? "90+"+(m-90) : m) + "'";
+}
+
+function draw(){
+  // gramado com listras
+  for(let i=0;i<10;i++){
+    ctx.fillStyle = i%2? getC("--pitch-b"):getC("--pitch-a");
+    ctx.fillRect(padX + i*(W-2*padX)/10, padY, (W-2*padX)/10, H-2*padY);
+  }
+  // linhas
+  ctx.strokeStyle=getC("--pitchline"); ctx.lineWidth=1.4;
+  ctx.strokeRect(fx(0),fy(0),fx(FW)-fx(0),fy(FH)-fy(0));
+  ctx.beginPath(); ctx.moveTo(fx(FW/2),fy(0)); ctx.lineTo(fx(FW/2),fy(FH)); ctx.stroke();
+  ctx.beginPath(); ctx.arc(fx(FW/2),fy(FH/2),(fx(9.15)-fx(0)),0,7); ctx.stroke();
+  // áreas
+  area(0,true); area(FW,false);
+  // rastros + jogadores
+  for(const p of todos) drawTrail(p);
+  for(const p of todos) drawPlayer(p);
+  drawBall();
+}
+function area(xg,left){
+  const w=fx(16.5)-fx(0); const h=fy(40)-fy(0);
+  const x=left? fx(0):fx(FW)-w; const y=fy(FH/2)-h/2;
+  ctx.strokeRect(x,y,w,h);
+  const gw=fx(5.5)-fx(0), gh=fy(18)-fy(0);
+  ctx.strokeRect(left?fx(0):fx(FW)-gw, fy(FH/2)-gh/2, gw, gh);
+}
+function drawTrail(p){
+  const col=p.ehCasa?getC("--casa"):getC("--fora");
+  for(let i=0;i<p.trail.length;i++){
+    const a=(i+1)/p.trail.length*0.18;
+    ctx.beginPath(); ctx.fillStyle=hexA(col,a);
+    ctx.arc(fx(p.trail[i].x),fy(p.trail[i].y), 3.5, 0, 7); ctx.fill();
+  }
+}
+function drawPlayer(p){
+  const r=Math.max(7, (fx(2.4)-fx(0)));
+  const base=p.ehCasa?getC("--casa"):getC("--fora");
+  let col=base;
+  if(p.flash>0 && p.flashCol) col=getC(p.flashCol);
+  ctx.beginPath(); ctx.fillStyle=col;
+  ctx.arc(fx(p.x),fy(p.y),r,0,7); ctx.fill();
+  if(p.flash>0){ ctx.lineWidth=2; ctx.strokeStyle=hexA(getC("--txt"),p.flash);
+    ctx.stroke(); }
+  ctx.fillStyle="#08110e"; ctx.font=`600 ${Math.round(r*1.05)}px Oswald,"Arial Narrow",sans-serif`;
+  ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText(p.num, fx(p.x), fy(p.y)+0.5);
+}
+function drawBall(){
+  const r=Math.max(4,(fx(1.3)-fx(0)));
+  ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,.35)";
+  ctx.arc(fx(ball.x)+1.5,fy(ball.y)+2,r,0,7); ctx.fill();
+  ctx.beginPath(); ctx.fillStyle=getC("--ball");
+  ctx.arc(fx(ball.x),fy(ball.y),r,0,7); ctx.fill();
+}
+
+// utils de cor
+const _cache={};
+function getC(v){ if(_cache[v])return _cache[v];
+  return _cache[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function hexA(hex,a){ // hex -> rgba
+  hex=hex.replace("#",""); if(hex.length===3)hex=hex.split("").map(c=>c+c).join("");
+  const n=parseInt(hex,16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+
+// controles
+document.getElementById("btnPlay").onclick=()=>{ playing=!playing;
+  document.getElementById("btnPlay").textContent=playing?"Pausar":"Jogar"; };
+document.getElementById("btnRestart").onclick=()=>{ reset(); };
+document.querySelectorAll(".spd button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".spd button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); speed=parseFloat(b.dataset.spd); });
+addEventListener("keydown",e=>{ if(e.code==="Space"){e.preventDefault();
+  document.getElementById("btnPlay").click(); }});
+addEventListener("resize",resize);
+
+// init
+speed=1;
+document.getElementById("title").innerHTML =
+  `${MATCH.casa} <span class="sep">×</span> ${MATCH.fora}`;
+document.getElementById("nameCasa").textContent=MATCH.casa;
+document.getElementById("nameFora").textContent=MATCH.fora;
+document.getElementById("chipCasa").style.background="var(--casa)";
+document.getElementById("chipFora").style.background="var(--fora)";
+resize(); reset(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

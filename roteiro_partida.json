@@ -1,0 +1,375 @@
+{
+  "casa": "Tupã Central",
+  "fora": "Esperança FC",
+  "golsCasa": 4,
+  "golsFora": 1,
+  "acrescimos": 1,
+  "xiCasa": [
+    {
+      "nome": "Pedrão Cardim",
+      "pos": "GOL",
+      "ov": 62
+    },
+    {
+      "nome": "Rômulo Macedo",
+      "pos": "ZAG",
+      "ov": 72
+    },
+    {
+      "nome": "Murilo Bensaúde",
+      "pos": "ZAG",
+      "ov": 62
+    },
+    {
+      "nome": "Wesley Andrade",
+      "pos": "LAT",
+      "ov": 66
+    },
+    {
+      "nome": "Sandro Falcão",
+      "pos": "LAT",
+      "ov": 62
+    },
+    {
+      "nome": "Igor Pestana",
+      "pos": "VOL",
+      "ov": 60
+    },
+    {
+      "nome": "Tales Saldanha",
+      "pos": "MEI",
+      "ov": 64
+    },
+    {
+      "nome": "Gabe Cardim",
+      "pos": "MEI",
+      "ov": 56
+    },
+    {
+      "nome": "Dante Lustosa",
+      "pos": "ATA",
+      "ov": 75
+    },
+    {
+      "nome": "Tales Cordeiro",
+      "pos": "ATA",
+      "ov": 70
+    },
+    {
+      "nome": "Nando Andrade",
+      "pos": "ATA",
+      "ov": 64
+    }
+  ],
+  "xiFora": [
+    {
+      "nome": "Bruno Andrade",
+      "pos": "GOL",
+      "ov": 62
+    },
+    {
+      "nome": "Wesley Bastos",
+      "pos": "ZAG",
+      "ov": 68
+    },
+    {
+      "nome": "Vitão Nóbrega",
+      "pos": "ZAG",
+      "ov": 67
+    },
+    {
+      "nome": "Caio Bastos",
+      "pos": "LAT",
+      "ov": 63
+    },
+    {
+      "nome": "Gabe Tinoco",
+      "pos": "LAT",
+      "ov": 58
+    },
+    {
+      "nome": "Léo Goulart",
+      "pos": "VOL",
+      "ov": 67
+    },
+    {
+      "nome": "Caio Goulart",
+      "pos": "MEI",
+      "ov": 68
+    },
+    {
+      "nome": "Caio Bastos",
+      "pos": "MEI",
+      "ov": 56
+    },
+    {
+      "nome": "Wesley Saldanha",
+      "pos": "ATA",
+      "ov": 72
+    },
+    {
+      "nome": "Sandro Drumond",
+      "pos": "ATA",
+      "ov": 70
+    },
+    {
+      "nome": "Diego Lustosa",
+      "pos": "ATA",
+      "ov": 64
+    }
+  ],
+  "eventos": [
+    [
+      7,
+      "DEFESA_GOL",
+      "Tupã Central",
+      "Pedrão Cardim"
+    ],
+    [
+      13,
+      "AMARELO",
+      "Esperança FC",
+      "Wesley Bastos"
+    ],
+    [
+      13,
+      "PENALTI",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      13,
+      "GOL_PENALTI",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      14,
+      "DESARME",
+      "Esperança FC",
+      "Wesley Bastos"
+    ],
+    [
+      16,
+      "GOL",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      17,
+      "CHUTE_LONGE",
+      "Tupã Central",
+      "Nando Andrade"
+    ],
+    [
+      17,
+      "GOLACO",
+      "Tupã Central",
+      "Nando Andrade"
+    ],
+    [
+      24,
+      "CHUTE_LONGE",
+      "Esperança FC",
+      "Wesley Saldanha"
+    ],
+    [
+      24,
+      "DEFESA_GOL",
+      "Tupã Central",
+      "Pedrão Cardim"
+    ],
+    [
+      25,
+      "DESARME",
+      "Esperança FC",
+      "Wesley Bastos"
+    ],
+    [
+      25,
+      "CHUTE_LONGE",
+      "Esperança FC",
+      "Caio Goulart"
+    ],
+    [
+      25,
+      "GOLACO",
+      "Esperança FC",
+      "Caio Goulart"
+    ],
+    [
+      27,
+      "DESARME",
+      "Tupã Central",
+      "Rômulo Macedo"
+    ],
+    [
+      29,
+      "FALTA",
+      "Tupã Central",
+      "Rômulo Macedo"
+    ],
+    [
+      29,
+      "PENALTI",
+      "Esperança FC",
+      "Wesley Saldanha"
+    ],
+    [
+      29,
+      "PENALTI_PERDIDO",
+      "Esperança FC",
+      "Wesley Saldanha"
+    ],
+    [
+      32,
+      "GOL",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      33,
+      "CHANCE_PERDIDA",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      44,
+      "CHUTE_LONGE",
+      "Tupã Central",
+      "Nando Andrade"
+    ],
+    [
+      44,
+      "DEFESA_GOL",
+      "Esperança FC",
+      "Bruno Andrade"
+    ],
+    [
+      48,
+      "DEFESA_GOL",
+      "Esperança FC",
+      "Bruno Andrade"
+    ],
+    [
+      48,
+      "CHANCE_PERDIDA",
+      "Esperança FC",
+      "Sandro Drumond"
+    ],
+    [
+      51,
+      "CHANCE_PERDIDA",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      52,
+      "AMARELO",
+      "Tupã Central",
+      "Rômulo Macedo"
+    ],
+    [
+      56,
+      "DESARME",
+      "Esperança FC",
+      "Wesley Bastos"
+    ],
+    [
+      59,
+      "CHANCE_PERDIDA",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      60,
+      "CHANCE_PERDIDA",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      61,
+      "CHANCE_PERDIDA",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      62,
+      "DEFESA_GOL",
+      "Tupã Central",
+      "Pedrão Cardim"
+    ],
+    [
+      64,
+      "CHUTE_LONGE",
+      "Esperança FC",
+      "Wesley Saldanha"
+    ],
+    [
+      64,
+      "DEFESA_GOL",
+      "Tupã Central",
+      "Pedrão Cardim"
+    ],
+    [
+      65,
+      "CHANCE_PERDIDA",
+      "Tupã Central",
+      "Dante Lustosa"
+    ],
+    [
+      68,
+      "DESARME",
+      "Tupã Central",
+      "Rômulo Macedo"
+    ],
+    [
+      70,
+      "DEFESA_GOL",
+      "Esperança FC",
+      "Bruno Andrade"
+    ],
+    [
+      74,
+      "DESARME",
+      "Esperança FC",
+      "Wesley Bastos"
+    ],
+    [
+      74,
+      "SUBSTITUICAO",
+      "Tupã Central",
+      "↓ Nando Andrade  ↑ Joca Bensaúde"
+    ],
+    [
+      84,
+      "CHANCE_PERDIDA",
+      "Esperança FC",
+      "Wesley Saldanha"
+    ],
+    [
+      85,
+      "DEFESA_GOL",
+      "Tupã Central",
+      "Pedrão Cardim"
+    ],
+    [
+      86,
+      "ATAQUE_PERIGOSO",
+      "Tupã Central",
+      "—"
+    ],
+    [
+      87,
+      "CHANCE_PERDIDA",
+      "Esperança FC",
+      "Sandro Drumond"
+    ],
+    [
+      91,
+      "IMPEDIMENTO",
+      "Esperança FC",
+      "—"
+    ]
+  ]
+}
